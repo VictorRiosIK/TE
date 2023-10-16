@@ -32,27 +32,18 @@ public class clienteGet {
             // Verifica si el servidor tiene el archivo
             boolean fileExists = dataIn.readBoolean();
             // Recibir el tamaño del archivo del servidor
-            long fileSize = dataIn.readLong();
+            
             if (fileExists) {
-                
-                /*// Lee el contenido del archivo y guárdalo localmente
-                FileOutputStream fileOutputStream = new FileOutputStream(fileName);
-                byte[] buffer = new byte[51200];
-                int bytesRead;
-
-                while ((bytesRead = inFromServer.read(buffer)) != -1) {
-                    fileOutputStream.write(buffer, 0, bytesRead);
-                }
-                
-                
-                fileOutputStream.close();
-                System.out.println("Archivo '" + fileName + "' recibido con éxito.");*/
+                long fileSize = dataIn.readLong();
                 byte[] buffer = new byte[(int)fileSize];
                 read(dataIn,buffer,0,fileSize);
+
                 FileOutputStream fileOutputStream = new FileOutputStream(fileName);
                 fileOutputStream.write(buffer);
                 fileOutputStream.close();
+
                 System.out.println("Archivo '" + fileName + "' creado con éxito.");
+
                 System.out.println("El archivo existe, se llama: " + fileName + " tiene un peso de: " + fileSize + " bytes");
             } else {
                 System.out.println("El archivo '" + fileName + "' no existe en el servidor.");
