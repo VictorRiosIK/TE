@@ -23,7 +23,13 @@ public class clientePut {
                 System.exit(1);
             }
             System.out.println("Archivo leido con exito");
-            Socket socket = new Socket(serverIP, serverPort);
+            // Configurar el sistema de confianza para el servidor (debe tener un certificado)
+            System.setProperty("javax.net.ssl.trustStore", "keystore_cliente.jks");
+            System.setProperty("javax.net.ssl.trustStorePassword", "123456");
+
+            // Crear un socket SSL
+            SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket socket = (SSLSocket) sslSocketFactory.createSocket(serverIP, serverPort);
 
             // Abre los flujos de entrada y salida
             OutputStream outToServer = socket.getOutputStream();

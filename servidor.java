@@ -18,11 +18,17 @@ public class servidor {
         int serverPort = Integer.parseInt(args[0]);
 
         try {
-            ServerSocket serverSocket = new ServerSocket(serverPort);
-            System.out.println("Servidor esperando conexiones en el puerto " + serverPort);
-
+            // Configurar el sistema de claves (debe tener un certificado y una clave privada)
+            System.setProperty("javax.net.ssl.keyStore", "keystore_servidor.jks");
+            System.setProperty("javax.net.ssl.keyStorePassword", "1234567");
+            
+            // Crear un servidor SSL en el puerto 50000
+            SSLServerSocketFactory sslServerSocketFactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
+            SSLServerSocket serverSocket =(SSLServerSocket)sslServerSocketFactory.createServerSocket(serverPort);
+            System.out.println("Esperando conexiones...");
+            System.out.println("Escuchando en el puerto: 50000");
             while (true) {
-                Socket clientSocket = serverSocket.accept();
+                SSLSocket clientSocket =(SSLSocket) serverSocket.accept();
 
                 // Abre los flujos de entrada y salida
                 InputStream inFromClient = clientSocket.getInputStream();
