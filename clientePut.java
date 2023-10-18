@@ -23,39 +23,61 @@ public class clientePut {
                 System.exit(1);
             }
             System.out.println("Archivo leido con exito");
-            // Configurar el sistema de confianza para el servidor (debe tener un certificado)
+            // Configurar el sistema de confianza para el servidor (debe tener un
+            // certificado)
             System.setProperty("javax.net.ssl.trustStore", "keystore_cliente.jks");
             System.setProperty("javax.net.ssl.trustStorePassword", "123456");
 
             // Crear un socket SSL
             SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
             SSLSocket socket = (SSLSocket) sslSocketFactory.createSocket(serverIP, serverPort);
-
-            // Abre los flujos de entrada y salida
-            OutputStream outToServer = socket.getOutputStream();
-            FileInputStream fileInputStream = new FileInputStream(fileName);
-
-            // Enviar la solicitud PUT al servidor
-            DataOutputStream dataOut = new DataOutputStream(outToServer);
-            dataOut.writeUTF("PUT");
-            dataOut.writeUTF(fileName);
-            dataOut.writeLong(file.length());
-            // Enviar el contenido del archivo al servidor
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = fileInputStream.read(buffer)) != -1) {
-                outToServer.write(buffer, 0, bytesRead);
-            }
-
-            // Cierre los flujos y el socket
-            fileInputStream.close();
-            outToServer.close();
-            socket.close();
-
-            System.out.println("Archivo enviado con éxito.");
+            Thread servidorThread = new Thread(new ServidorHandler(socket, fileName, file.length()));
+            servidorThread.start();
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private static class ServidorHandler extends Thread {
+        private final SSLSocket socket;
+        private final String fileName;
+        private final Long fileSize;
+
+        public ServidorHandler(SSLSocket socket, String fileName, Long fileSize) {
+            this.socket = socket;
+            this.fileName = fileName;
+            this.fileSize = fileSize;
+        }
+
+        @Override
+        public void run() {
+            try {
+                // Abre los flujos de entrada y salida
+                OutputStream outToServer = socket.getOutputStream();
+                FileInputStream fileInputStream = new FileInputStream(fileName);
+
+                // Enviar la solicitud PUT al servidor
+                DataOutputStream dataOut = new DataOutputStream(outToServer);
+                dataOut.writeUTF("PUT");
+                dataOut.writeUTF(fileName);
+                dataOut.writeLong(fileSize);
+                // Enviar el contenido del archivo al servidor
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+                    outToServer.write(buffer, 0, bytesRead);
+                }
+
+                // Cierre los flujos y el socket
+                fileInputStream.close();
+                outToServer.close();
+                socket.close();
+
+                System.out.println("Archivo enviado con éxito.");
+            } catch (Exception e) {
+
+            }
         }
     }
 }
