@@ -76,7 +76,7 @@ public class clientePut {
 
                 System.out.println("Archivo enviado con éxito.");
             } catch (Exception e) {
-
+                System.out.println(e.getMessage());
             }
         }
     }
