@@ -21,9 +21,26 @@ public class clienteGet {
             // Crear un socket SSL
             SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
             SSLSocket socket = (SSLSocket) sslSocketFactory.createSocket(serverIP, serverPort);
-            
+            Thread servidorThread = new Thread(new ServidorHandler(socket,fileName));
+                servidorThread.start();
 
-            // Abre los flujos de entrada y salida
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    private static class ServidorHandler extends Thread{
+        private final SSLSocket socket;
+        private final String fileName;
+
+        public ServidorHandler(SSLSocket socket,String fileName) {
+            this.socket = socket;
+            this.fileName=fileName;
+        }
+        @Override
+        public void run(){
+            try{
+                // Abre los flujos de entrada y salida
             OutputStream outToServer = socket.getOutputStream();
             DataOutputStream dataOut = new DataOutputStream(outToServer);
 
@@ -60,8 +77,9 @@ public class clienteGet {
             inFromServer.close();
             dataOut.close();
             socket.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+            }catch(Exception e){
+                System.out.println(e.getMessage());
+            }
         }
     }
     static void read(DataInputStream f,byte[] b,int posicion,long longitud) throws Exception
