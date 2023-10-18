@@ -61,18 +61,10 @@ public class servidor {
                     String fileName = dataIn.readUTF();
                     long fileLength = dataIn.readLong();
 
-                    // Lee el contenido del archivo y lo guarda en el servidor
-                    byte[] buffer = new byte[1024];
+                    byte[] buffer = new byte[(int) fileLength];
+                    read(dataIn, buffer, 0, fileLength);
                     FileOutputStream fileOutputStream = new FileOutputStream(fileName);
-
-                    int bytesRead;
-                    long totalBytesRead = 0;
-                    while (totalBytesRead < fileLength) {
-                        bytesRead = inFromClient.read(buffer);
-                        fileOutputStream.write(buffer, 0, bytesRead);
-                        totalBytesRead += bytesRead;
-                    }
-
+                    fileOutputStream.write(buffer);
                     fileOutputStream.close();
                     System.out.println("Archivo '" + fileName + "' recibido con éxito.");
                 } else if (request.equals("GET")) {
@@ -104,8 +96,15 @@ public class servidor {
 
                 socket.close();
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                e.printStackTrace();
             }
+        }
+    }
+    static void read(DataInputStream f, byte[] b, int posicion, long longitud) throws Exception {
+        while (longitud > 0) {
+            int n = f.read(b, posicion, (int) longitud);
+            posicion += n;
+            longitud -= n;
         }
     }
 }
