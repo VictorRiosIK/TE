@@ -29,9 +29,25 @@ public class servidor {
             System.out.println("Escuchando en el puerto: 50000");
             while (true) {
                 SSLSocket clientSocket =(SSLSocket) serverSocket.accept();
+                Thread clientThread = new Thread(new ClienteHandler(clientSocket));
+                clientThread.start();
+                
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private static class ClienteHandler implements Runnable{
+        private final SSLSocket socket;
 
+        public ClienteHandler(SSLSocket socket) {
+            this.socket = socket;
+        }
+        @Override
+        public void run(){
+            try{
                 // Abre los flujos de entrada y salida
-                InputStream inFromClient = clientSocket.getInputStream();
+                InputStream inFromClient = socket.getInputStream();
                 DataInputStream dataIn = new DataInputStream(inFromClient);
 
                 String request = dataIn.readUTF();
@@ -59,7 +75,7 @@ public class servidor {
                     String fileName = dataIn.readUTF();
                     File file = new File(fileName);
                     boolean fileExists = file.exists() && file.isFile();
-                    DataOutputStream dataOut = new DataOutputStream(clientSocket.getOutputStream());
+                    DataOutputStream dataOut = new DataOutputStream(socket.getOutputStream());
                     dataOut.writeBoolean(fileExists);
 
                     if (fileExists) {
@@ -82,10 +98,10 @@ public class servidor {
                     System.out.println("Solicitud no válida.");
                 }
 
-                clientSocket.close();
+                socket.close();
+            }catch(Exception e){
+                System.out.println(e.getMessage());
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }
