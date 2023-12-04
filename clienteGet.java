@@ -2,8 +2,7 @@ import java.io.*;
 import java.net.*;
 import java.security.*;
 import javax.net.ssl.*;
-
-public class clienteGet {
+public class clienteGetCambiado {
     public static void main(String[] args) {
         if (args.length != 3) {
             System.out.println("Uso: java ClienteGet <IP del servidor> <Puerto del servidor> <Nombre del archivo>");
